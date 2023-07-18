@@ -14,16 +14,80 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity {
+import java.text.DecimalFormat;
 
-Button btnclr, btncalc;
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-EditText exitInput;
+    private EditText amountEditText;
+    TextView hehe;
+    private RadioGroup conversionDirectionRadioGroup;
+    private Button convertButton;
+    private TextView resultTextView;
 
-RadioButton r1,r2,r3;
+    private double usdToBdtRate = 106;
+    private double inrToBdtRate = 1.63;
 
-    protected void onCreate(Bundle savedInstanceState){
-        super.onCreate((savedInstanceState);
-        btncalc = findViewById(R.id.btncalc);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        amountEditText = findViewById(R.id.amountEditText);
+        conversionDirectionRadioGroup = findViewById(R.id.conversionDirectionRadioGroup);
+        convertButton = findViewById(R.id.convertButton);
+        hehe  = (TextView) findViewById(R.id.cancelButton);
+        resultTextView = findViewById(R.id.resultTextView);
+
+        convertButton.setOnClickListener(this);
+        hehe.setOnClickListener(this);
+
+
+
     }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.convertButton) {
+            convertCurrency();
+        }
+
+        if (v.getId() == R.id.cancelButton) {
+            amountEditText.setText("");
+        }
+    }
+
+    private void convertCurrency() {
+        String amountString = amountEditText.getText().toString().trim();
+        if (amountString.isEmpty()) {
+            resultTextView.setText("Please enter an amount");
+            return;
+        }
+
+        double amount = Double.parseDouble(amountString);
+        int selectedRadioButtonId = conversionDirectionRadioGroup.getCheckedRadioButtonId();
+
+        double convertedAmount;
+        String resultCurrency;
+
+        if (selectedRadioButtonId == R.id.usdToBdtRadioButton) {
+            convertedAmount = amount * usdToBdtRate;
+            resultCurrency = "BDT";
+        } else if (selectedRadioButtonId == R.id.bdtToUsdRadioButton) {
+            convertedAmount = amount / usdToBdtRate;
+            resultCurrency = "USD";
+        } else if (selectedRadioButtonId == R.id.bdtToInrRadioButton) {
+            convertedAmount = amount / inrToBdtRate;
+            resultCurrency = "INR";
+        } else if (selectedRadioButtonId == R.id.inrToBdtRadioButton) {
+            convertedAmount = amount * inrToBdtRate;
+            resultCurrency = "BDT";
+        } else {
+            return;
+        }
+
+        DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
+        String result = decimalFormat.format(convertedAmount) + " " + resultCurrency;
+        resultTextView.setText(result);
+    }
+
 }
